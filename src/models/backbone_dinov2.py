@@ -107,11 +107,16 @@ class ExtractDINO(nn.Module):
         # applied threading for pytorch data parallel
         # https://discuss.pytorch.org/t/aggregating-the-results-of-forward-backward-hook-on-nn-dataparallel-multi-gpu/28981/7
 
+        # applied device id for pytorch data parallel
+        # https://discuss.pytorch.org/t/register-forward-hook-with-multiple-gpus/12115/8
+
         def cls_foo(module, inputs, outputs):
-            self._cls_hook_output[threading.get_native_id()] = outputs
+            # self._cls_hook_output[threading.get_native_id()] = outputs
+            self._cls_hook_output[outputs.device] = outputs
 
         def qkv_foo(module, inputs, outputs):
-            self._qkv_hook_output[threading.get_native_id()] = outputs
+            # self._qkv_hook_output[threading.get_native_id()] = outputs
+            self._qkv_hook_output[outputs.device] = outputs
 
         cls_handle = self.dino.blocks[layer].register_forward_hook(cls_foo)
 
@@ -129,13 +134,21 @@ class ExtractDINO(nn.Module):
 
         res = self.dino(x)
 
-        thread_id = threading.get_native_id()
+        # thread_id = threading.get_native_id()
 
-        qkv = self._qkv_hook_output[thread_id][:, 1:, ...]
-        token = self._cls_hook_output[thread_id][:, 1:, ...]
+        # qkv = self._qkv_hook_output[thread_id][:, 1:, ...]
+        # token = self._cls_hook_output[thread_id][:, 1:, ...]
 
-        del self._qkv_hook_output[thread_id]
-        del self._cls_hook_output[thread_id]
+        # del self._qkv_hook_output[thread_id]
+        # del self._cls_hook_output[thread_id]
+
+        device = x.device
+
+        qkv = self._qkv_hook_output[device][:, 1:, ...]
+        token = self._cls_hook_output[device][:, 1:, ...]
+
+        del self._qkv_hook_output[device]
+        del self._cls_hook_output[device]
 
         n = self.num_features
 
