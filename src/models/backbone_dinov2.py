@@ -89,11 +89,10 @@ class ExtractDINO(nn.Module):
         self._qkv_handle = None
         self._cls_hook_output = {}
         self._qkv_hook_output = {}
-        self._set_handle()
 
         self.frozen_mode = is_all_frozen(dino)
 
-    def __del__(self):
+    def _del_handle(self):
         self._cls_handle.remove()
         self._qkv_handle.remove()
 
@@ -107,16 +106,11 @@ class ExtractDINO(nn.Module):
         # applied threading for pytorch data parallel
         # https://discuss.pytorch.org/t/aggregating-the-results-of-forward-backward-hook-on-nn-dataparallel-multi-gpu/28981/7
 
-        # applied device id for pytorch data parallel
-        # https://discuss.pytorch.org/t/register-forward-hook-with-multiple-gpus/12115/8
-
         def cls_foo(module, inputs, outputs):
-            # self._cls_hook_output[threading.get_native_id()] = outputs
-            self._cls_hook_output[outputs.device] = outputs
+            self._cls_hook_output[threading.get_native_id()] = outputs
 
         def qkv_foo(module, inputs, outputs):
-            # self._qkv_hook_output[threading.get_native_id()] = outputs
-            self._qkv_hook_output[outputs.device] = outputs
+            self._qkv_hook_output[threading.get_native_id()] = outputs
 
         cls_handle = self.dino.blocks[layer].register_forward_hook(cls_foo)
 
@@ -129,26 +123,26 @@ class ExtractDINO(nn.Module):
 
     def _forward(self, x):
 
+        # [TODO] not sure why, but it works on both 1 and 2 GPUs env...
+        # need to set register_forward_hook for each forward pass
+        self._set_handle()
+
         assert len(x.shape) == 4
         batch, _, row, col = x.shape
 
         res = self.dino(x)
 
-        # thread_id = threading.get_native_id()
+        thread_id = threading.get_native_id()
 
-        # qkv = self._qkv_hook_output[thread_id][:, 1:, ...]
-        # token = self._cls_hook_output[thread_id][:, 1:, ...]
+        qkv = self._qkv_hook_output[thread_id][:, 1:, ...]
+        token = self._cls_hook_output[thread_id][:, 1:, ...]
 
-        # del self._qkv_hook_output[thread_id]
-        # del self._cls_hook_output[thread_id]
+        del self._qkv_hook_output[thread_id]
+        del self._cls_hook_output[thread_id]
 
-        device = x.device
-
-        qkv = self._qkv_hook_output[device][:, 1:, ...]
-        token = self._cls_hook_output[device][:, 1:, ...]
-
-        del self._qkv_hook_output[device]
-        del self._cls_hook_output[device]
+        # [TODO] not sure why, but it works on both 1 and 2 GPUs env...
+        # need to delete register_forward_hook for each forward pass,
+        self._del_handle()
 
         n = self.num_features
 
