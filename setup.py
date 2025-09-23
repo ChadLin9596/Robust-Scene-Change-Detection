@@ -19,9 +19,9 @@ setup(
         "numpy<2.0.0",
         "pyyaml",
         "Pillow",
-        "torch==1.13.1",
-        "torchvision==0.14.1",
+        "torch==2.6.0",
+        "torchvision==0.21.0",
         "wandb",
-        "xformers==0.0.16",
+        "xformers==0.0.29.post2",
     ],
 )
