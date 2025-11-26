@@ -3,6 +3,7 @@
 
 ### Paper
 
+* [IEEE Xplore](https://ieeexplore.ieee.org/abstract/document/11128568)
 * [arXiv link](http://arxiv.org/abs/2409.16850)
 
 ### An Introduction Video (3 minutes)
@@ -24,12 +25,12 @@ $ git submodule update
 
 # create a Python 3.9.6 (or other env can run DinoV2) virtual environment
 $ source <directory of virtual environment>/bin/activate
-$ cd <this repository>
-$ pip install -r requirements.txt
+(env)$ cd <this repository>
+(env)$ pip install -r requirements.txt
 
 # install
-$ pip install -e thirdparties/py_utils
-$ pip install -e .
+(env)$ pip install -e thirdparties/py_utils
+(env)$ pip install -e .
 
 ```
 
@@ -37,7 +38,7 @@ $ pip install -e .
 
 * download [VL-CMU-CD](https://huggingface.co/datasets/Flourish/VL-CMU-CD/blob/main/VL-CMU-CD-binary255.zip) & [PSCD](https://kensakurada.github.io/pscd/term_of_use.html) datasets
 
-* update the both dataset directories to `datasets/data_factory`
+* update the both dataset directories to `Robust-Scene-Change-Detection/data_factory`
 
 ### Example usage
 
