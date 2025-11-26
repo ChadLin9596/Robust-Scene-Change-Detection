@@ -157,5 +157,18 @@ $ pip install -e .
 * [x] release pretraining weight
 * [x] examples of inference on new scenes
 * [x] support torch hub
-* [ ] support Hugging Face (Q3 2025 or earlier...)
+* [ ] ~~support Hugging Face (Q3 2025 or earlier...)~~ (no longer needed)
 * [x] refactor to `master` and keep baseline scripts into `master-w-baselines` branch (like C3PO)
+
+### BibTex
+
+```
+@inproceedings{lin2025robust,
+  title        = {Robust scene change detection using visual foundation models and cross-attention mechanisms},
+  author       = {Lin, Chun-Jung and Garg, Sourav and Chin, Tat-Jun and Dayoub, Feras},
+  booktitle    = {2025 IEEE International Conference on Robotics and Automation (ICRA)},
+  pages        = {8337--8343},
+  year         = {2025},
+  organization = {IEEE}
+}
+```
